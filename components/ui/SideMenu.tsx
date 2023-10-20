@@ -1,3 +1,6 @@
+import { useContext, useState } from 'react';
+
+import { useRouter } from 'next/router';
 import {
     Box,
     Divider,
@@ -12,6 +15,7 @@ import {
     ListItemText,
     ListSubheader,
 } from '@mui/material';
+
 import {
     AccountCircleOutlined,
     AdminPanelSettings,
@@ -25,11 +29,31 @@ import {
     VpnKeyOutlined,
 } from '@mui/icons-material';
 
+import { UiContext } from '@/context';
+
 export const SideMenu = () => {
+    const { isMenuSideOpen, toggleSideMenu } = useContext(UiContext);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const { push } = useRouter();
+
+    const navigateTo = (url: string) => {
+        push(url);
+
+        toggleSideMenu();
+    };
+
+    const onSearchTerm = () => {
+        if (searchTerm.trim().length === 0) return;
+
+        navigateTo(`/search/${searchTerm}`);
+    };
+
     return (
         <Drawer
-            open={false}
+            open={isMenuSideOpen}
             anchor='right'
+            onClose={toggleSideMenu}
             sx={{
                 backdropFilter: 'blur(4px)',
                 transition: 'all 0.5s ease-out',
@@ -39,11 +63,17 @@ export const SideMenu = () => {
                 <List>
                     <ListItem>
                         <Input
+                            autoFocus
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyUp={(e) =>
+                                e.key === 'Enter' ? onSearchTerm() : null
+                            }
                             type='text'
                             placeholder='Buscar...'
                             endAdornment={
                                 <InputAdornment position='end'>
-                                    <IconButton aria-label='toggle password visibility'>
+                                    <IconButton onClick={onSearchTerm}>
                                         <SearchOutlined />
                                     </IconButton>
                                 </InputAdornment>
@@ -69,21 +99,30 @@ export const SideMenu = () => {
                         <ListItemIcon>
                             <MaleOutlined />
                         </ListItemIcon>
-                        <ListItemText primary={'Hombres'} />
+                        <ListItemText
+                            primary={'Hombres'}
+                            onClick={() => navigateTo('/category/men')}
+                        />
                     </ListItemButton>
 
                     <ListItemButton sx={{ display: { xs: '', sm: 'none' } }}>
                         <ListItemIcon>
                             <FemaleOutlined />
                         </ListItemIcon>
-                        <ListItemText primary={'Mujeres'} />
+                        <ListItemText
+                            primary={'Mujeres'}
+                            onClick={() => navigateTo('/category/women')}
+                        />
                     </ListItemButton>
 
                     <ListItemButton sx={{ display: { xs: '', sm: 'none' } }}>
                         <ListItemIcon>
                             <EscalatorWarningOutlined />
                         </ListItemIcon>
-                        <ListItemText primary={'Niños'} />
+                        <ListItemText
+                            primary={'Niños'}
+                            onClick={() => navigateTo('/category/kid')}
+                        />
                     </ListItemButton>
 
                     <ListItemButton>
